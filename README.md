@@ -16,6 +16,9 @@ Heart disease is the leading cause of death for men, women, and most racial and 
 ## Citations
 https://docs.google.com/document/d/1_SOi75va9zlUbRK0rf99x6agDCygg5cdAIQ4XwGuLLQ/edit?usp=sharing
 
+## Proposal
+https://docs.google.com/document/d/16qZ9RXL_Jhs3Sdk-vMXuFFfAF-A4F4yCTPOypt5yivo/edit?usp=sharing
+
 Team Name: *Goblins Hiding in Vents*
 
 ---
