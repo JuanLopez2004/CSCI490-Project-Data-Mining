@@ -30,11 +30,6 @@
    ```cmd
    .venv\Scripts\activate.bat
    ```
-   
-   **macOS/Linux:**
-   ```bash
-   source .venv/bin/activate
-   ```
 
 4. **Install required packages:**
    ```bash
@@ -99,7 +94,7 @@ Team Name: *Goblins Hiding in Vents*
 4. **Phase 4 – Feature Engineering:** Derived features, Chi-Square analysis, final feature selection.  
 5. **Phase 5 – Modeling:** Train Decision Tree, evaluate, save model.  
 6. **Phase 6 – Accuracy Improvement:** Hyperparameter tuning, cross-validation, model comparison.  
-7. **Phase 7 – Checkpoint Report:** Compile findings, visualizations, and metrics into a report.
+7. **Phase 7 – Conclusiont Report:** Compile findings, visualizations, and metrics into a report.
 
 ---
 
