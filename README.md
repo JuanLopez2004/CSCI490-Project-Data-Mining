@@ -1,5 +1,52 @@
-# csci490
 # Heart Failure Prediction – Goblins Hiding in Vents
+
+## 🚀 Quick Setup for Team Members
+
+### Prerequisites
+- Python 3.12.4 (or compatible version)
+- Git
+
+### Getting Started
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/JuanLopez2004/csci490.git
+   cd csci490
+   ```
+
+2. **Create a virtual environment:**
+   ```bash
+   python -m venv .venv
+   ```
+
+3. **Activate the virtual environment:**
+   
+   **Windows (PowerShell):**
+   ```powershell
+   .\.venv\Scripts\Activate.ps1
+   ```
+   
+   **Windows (Command Prompt):**
+   ```cmd
+   .venv\Scripts\activate.bat
+   ```
+   
+   **macOS/Linux:**
+   ```bash
+   source .venv/bin/activate
+   ```
+
+4. **Install required packages:**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+5. **Start Jupyter Notebook:**
+   ```bash
+   jupyter notebook
+   ```
+
+---
 
 ## Project Overview
 Heart disease is the leading cause of death for men, women, and most racial and ethnic groups. Diagnosing heart failure (HF) effectively is crucial, as misdiagnosis rates range from 16% in hospitals to 68% when patients are referred to specialists. This project aims to develop a machine learning model that predicts heart failure with higher accuracy than current hospital diagnoses.
