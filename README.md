@@ -1,9 +1,9 @@
 # Heart Failure Prediction – Goblins Hiding in Vents
 
-## 🚀 Quick Setup for Team Members
+## Setup
 
 ### Prerequisites
-- Python 3.12.4 (or compatible version)
+- Python 3.12.4
 - Git
 
 ### Getting Started
