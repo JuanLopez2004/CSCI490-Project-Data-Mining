@@ -1,6 +1,6 @@
 # Week 3 Plan: Model Testing and Final Presentation
 
-**Team:** Nasiru and Jose  
+**Team:** Julian and Jose  
 **Duration:** 7 days  
 **Goal:** Thoroughly test saved model and create professional results presentation
 

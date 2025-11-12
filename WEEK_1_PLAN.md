@@ -1,6 +1,6 @@
 # Week 1 Plan: Data Analysis and Understanding
 
-**Team:** Cameron and Julian  
+**Team:** Cameron and Nas
 **Duration:** 7 days  
 **Goal:** Load dataset, understand patterns, prepare for modeling
 
