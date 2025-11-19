@@ -4,7 +4,7 @@
 **Duration:** 7 days  
 **Goal:** Build models that beat hospital baseline of 83.9% accuracy
 
-## Day 1-2: Data Preparation and Splitting
+## Day 1-2: Data Preparation and Splitting - Juan 
 
 **What to code:**
 - Load clean dataset from Week 1
@@ -47,7 +47,7 @@
 - Detailed performance metrics (precision, recall, F1-score)
 - Confusion matrices showing prediction errors
 
-## Day 7: Best Model Selection and Saving
+## Day 7: Best Model Selection and Saving - Juan
 
 **What to code:**
 - Select model with highest accuracy
