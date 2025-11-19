@@ -7,10 +7,10 @@
 ## Day 1-2: Data Loading and Basic Analysis
 
 **What to code:**
-- Load UCI heart failure dataset (299 patients)
-- Check dataset shape, missing values, data types
-- Calculate basic statistics (mean, median, std deviation)
-- Print survival rate and death rate
+- Load UCI heart failure dataset (299 patients) -- (done)
+- Check dataset shape, missing values, data types -- (done)
+- Calculate basic statistics (mean, median, std deviation) -- (done)
+- Print survival rate and death rate -- (done)
 
 **Expected output:**
 - Dataset successfully loaded
@@ -21,10 +21,10 @@
 ## Day 3-4: Correlation Analysis
 
 **What to code:**
-- Calculate correlation matrix between all features
-- Identify features most correlated with death events
-- Rank features by absolute correlation with target
-- Create correlation heatmap
+- Calculate correlation matrix between all features -- (done)
+- Identify features most correlated with death events -- (done)
+- Rank features by absolute correlation with target -- (done)
+- Create correlation heatmap -- (done)
 
 **Expected output:**
 - Correlation matrix showing all feature relationships
@@ -34,11 +34,11 @@
 ## Day 5-6: Data Visualization
 
 **What to code:**
-- Survival distribution pie chart
-- Age distribution by outcome (histogram)
-- Ejection fraction by outcome (box plot)
-- Serum creatinine by outcome (box plot)
-- Feature importance bar chart
+- Survival distribution pie chart -- (done)
+- Age distribution by outcome (histogram) 
+- Ejection fraction by outcome (box plot) -- (done)
+- Serum creatinine by outcome (box plot) 
+- Feature importance bar chart 
 
 **Expected output:**
 - 5 different charts showing data patterns
@@ -48,16 +48,16 @@
 ## Day 7: Summary and Handoff
 
 **What to code:**
-- Summary statistics for all features
+- Summary statistics for all features 
 - List of key findings and insights
-- Save clean dataset for Week 2
-- Document which features predict death
+- Save clean dataset for Week 2 -- (done)
+- Document which features predict death -- (done)
 
 **Deliverables for Week 2 team:**
-- Clean dataset file
-- List of most important features
-- Summary of data quality
-- Basic insights about patient patterns
+- Clean dataset file (done)
+- List of most important features (done)
+- Summary of data quality -- (done)
+- Basic insights about patient patterns -- (done)
 
 **Success criteria:**
 - Dataset loaded without errors
