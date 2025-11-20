@@ -8,14 +8,22 @@ Nasiru and Jose continue from evaluation work.
 
 ## What to include
 1. Project overview and goals
+<<<<<<< HEAD
 2. Dataset description (1001 patients)
+=======
+2. Dataset description (1000 patients)
+>>>>>>> b8ffc30ecc6daee570b611faade830c01b41a754
 3. Model performance vs hospital baseline
 4. Key findings and insights
 5. Charts and visualizations
 
 ## Presentation structure
 - **Slide 1**: Project goal - Beat 83.9% hospital accuracy
+<<<<<<< HEAD
 - **Slide 2**: Dataset - 1001 heart failure patients, 12 features
+=======
+- **Slide 2**: Dataset - 1000 heart failure patients, 12 features
+>>>>>>> b8ffc30ecc6daee570b611faade830c01b41a754
 - **Slide 3**: Approach - 3 models tested, best one selected
 - **Slide 4**: Results - Final accuracy and ROC curve
 - **Slide 5**: Conclusion - Did we beat the baseline?
@@ -36,7 +44,7 @@ Nasiru and Jose continue from evaluation work.
 ```python
 # Create final summary
 results = {
-    'Dataset': '299 heart failure patients',
+    'Dataset': '1000 heart failure patients',
     'Features': '12 clinical features',
     'Models tested': ['Decision Tree', 'Random Forest', 'Logistic Regression'],
     'Best model': 'Decision Tree',  # Example
