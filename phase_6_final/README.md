@@ -8,14 +8,14 @@ Nasiru and Jose continue from evaluation work.
 
 ## What to include
 1. Project overview and goals
-2. Dataset description (299 patients)
+2. Dataset description (1001 patients)
 3. Model performance vs hospital baseline
 4. Key findings and insights
 5. Charts and visualizations
 
 ## Presentation structure
 - **Slide 1**: Project goal - Beat 83.9% hospital accuracy
-- **Slide 2**: Dataset - 299 heart failure patients, 12 features
+- **Slide 2**: Dataset - 1001 heart failure patients, 12 features
 - **Slide 3**: Approach - 3 models tested, best one selected
 - **Slide 4**: Results - Final accuracy and ROC curve
 - **Slide 5**: Conclusion - Did we beat the baseline?

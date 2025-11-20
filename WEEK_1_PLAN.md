@@ -14,9 +14,9 @@
 
 **Expected output:**
 - Dataset successfully loaded
-- No missing values confirmed
+- No missing values confirmed 
 - Basic statistics table
-- Overall survival rate (approximately 68%)
+- Overall survival rate 
 
 ## Day 3-4: Correlation Analysis
 
@@ -28,7 +28,7 @@
 
 **Expected output:**
 - Correlation matrix showing all feature relationships
-- List of top 5 predictive features
+- List of top 5 predictive features - IMPORTANT
 - Heatmap visualization saved as image
 
 ## Day 5-6: Data Visualization
@@ -48,8 +48,8 @@
 ## Day 7: Summary and Handoff
 
 **What to code:**
-- Summary statistics for all features 
-- List of key findings and insights
+- Summary statistics for all features (done)
+- List of key findings and insights (done)
 - Save clean dataset for Week 2 -- (done)
 - Document which features predict death -- (done)
 
@@ -61,6 +61,6 @@
 
 **Success criteria:**
 - Dataset loaded without errors
-- 299 patients, 13 features confirmed
-- Top 3 predictive features identified
+- 1001 patients, 13 features confirmed
+- Top 3 predictive features identified -IMPORTANT
 - Data ready for machine learning
