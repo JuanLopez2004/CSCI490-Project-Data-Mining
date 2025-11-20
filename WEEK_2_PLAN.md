@@ -2,67 +2,80 @@
 
 **Team:** Juan and Nathan  
 **Duration:** 7 days  
-**Goal:** Build models that beat hospital baseline of 83.9% accuracy
+**Goal:** Build models that predict mortality in heart failure patients and outperform Seattle Heart Failure Model
+
+**What you're predicting:** DEATH_EVENT (0 = patient survived, 1 = patient died from heart failure)
+
+**Baseline to beat:** 
+- Seattle Heart Failure Model: AUC-ROC ≈ 0.73 (~73% accuracy) (Levy et al., 2006)
+- Your target: AUC-ROC ≥ 0.85 (≥85% accuracy)
+- Goal: Statistically significant improvement with 95% confidence (bootstrapping)
 
 ## Day 1-2: Data Preparation and Splitting - Juan 
 
 **What to code:**
 - Load clean dataset from Week 1
-- Separate features (X) from target variable (y)
-- Split data into training and testing sets (80/20 split)
-- Verify data splitting maintains death rate balance
+- Separate features (X = all columns except DEATH_EVENT) from target (y = DEATH_EVENT)
+- Split data using stratify=y to keep same death rate in both sets
+- Verify death rate is ~32% in both training and test sets
 
 **Expected output:**
-- Training set with ~239 patients
-- Test set with ~60 patients
-- Same death rate in both training and test sets
-- Features and target properly separated
+- Training set with ~800 patients (80%)
+- Test set with ~200 patients (20%)
+- Both sets have same ~32% death rate
+- X = 12 features, y = DEATH_EVENT (0 or 1)
 
 ## Day 3-4: Model Training
 
 **What to code:**
-- Train Decision Tree Classifier
-- Train Random Forest Classifier
-- Train Logistic Regression
-- Use cross-validation to estimate performance
-- Set random seeds for reproducible results
+- Train Decision Tree with class_weight='balanced'
+- Train Random Forest with class_weight='balanced'
+- Train Logistic Regression with class_weight='balanced'
+- Set random_state=42 for reproducible results
 
 **Expected output:**
-- 3 trained models ready for testing
-- Cross-validation scores for each model
-- Models that can make predictions on new data
+- 3 trained models that predict death (1) vs survival (0)
+- Models ready to test on 200 test patients
+- Each model trained on ~800 training patients
 
 ## Day 5-6: Model Evaluation and Comparison
 
 **What to code:**
-- Test all 3 models on test set
-- Calculate accuracy for each model
-- Compare each accuracy to 83.9% hospital baseline
-- Generate classification reports
+- Test all 3 models on test set (predict death vs survival)
+- Calculate accuracy and AUC-ROC for each model
+- Compare to Seattle HF Model (AUC ≈ 0.73)
+- Generate classification reports (precision/recall/F1-score)
 - Create confusion matrices
+- Calculate ROC curves
 
 **Expected output:**
-- Accuracy scores for all 3 models
-- Clear identification of which models beat baseline
-- Detailed performance metrics (precision, recall, F1-score)
-- Confusion matrices showing prediction errors
+- Accuracy: Does it reach ≥85% target?
+- AUC-ROC: Does it beat 0.73 baseline and reach ≥0.85?
+- Precision: When model predicts death, how often is it right?
+- Recall/Sensitivity: Of patients who died, what % did model catch?
+- F1-score: Balance between precision and recall
+- ROC curve: Visual comparison to Seattle model
 
 ## Day 7: Best Model Selection and Saving - Juan
 
 **What to code:**
-- Select model with highest accuracy
-- Calculate feature importance (if available)
-- Save best model as pickle file
-- Document final performance vs baseline
+- Select model with highest AUC-ROC (target: ≥0.85)
+- Calculate feature importance
+- Perform bootstrap validation (1000 iterations) for 95% confidence intervals
+- Save best model as best_model.pkl
+- Document: accuracy, AUC-ROC, confidence intervals, top features
 
 **Deliverables for Week 3 team:**
-- Saved best model file (best_model.pkl)
-- Final accuracy score
-- Feature importance rankings
-- Performance comparison to hospital baseline
+- best_model.pkl (can predict death for new patients)
+- Final accuracy score (target: ≥85%)
+- AUC-ROC score (target: ≥0.85, beating Seattle's 0.73)
+- 95% confidence intervals from bootstrapping
+- Feature importance: which of the 12 features predict death best
+- Summary: "Our [model] achieved AUC-ROC of X vs Seattle HF Model (0.73)"
 
 **Success criteria:**
-- At least one model beats 83.9% baseline
-- Best model saved and ready for testing
-- Clear documentation of which model performs best
-- Feature importance analysis completed
+- Model achieves AUC-ROC ≥0.85 (beats Seattle's 0.73)
+- Accuracy ≥85%
+- 95% confidence intervals show statistically significant improvement
+- Feature importance shows top predictors (time, ejection_fraction, serum_creatinine)
+- Clear handoff to Week 3 with working model file
