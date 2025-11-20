@@ -61,6 +61,6 @@
 
 **Success criteria:**
 - Dataset loaded without errors
-- 299 patients, 13 features confirmed
+- 1000 patients, 13 features confirmed
 - Top 3 predictive features identified
 - Data ready for machine learning

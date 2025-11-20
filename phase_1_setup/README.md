@@ -7,7 +7,7 @@ Load the UCI heart failure dataset and understand the basic structure.
 Cameron and Julian work on this week.
 
 ## What to do
-1. Load the dataset (299 patients)
+1. Load the dataset (1000 patients)
 2. Check data quality (missing values, data types)
 3. Create basic summary statistics
 4. Make simple charts to understand the data
@@ -17,7 +17,7 @@ Cameron and Julian work on this week.
 - `original.csv` - Heart failure dataset
 
 ## Dataset basics
-- 299 patients
+- 1000 patients
 - 12 features: age, blood pressure, ejection fraction, etc.
 - Target: DEATH_EVENT (0=survived, 1=died)
 - No missing values
@@ -49,7 +49,7 @@ plt.show()
 
 ## Success check
 - Data loads without errors
-- 299 rows, 13 columns
+- 1000 rows, 13 columns
 - No missing values
 - Basic charts created
 - Understanding which patients died vs survived
