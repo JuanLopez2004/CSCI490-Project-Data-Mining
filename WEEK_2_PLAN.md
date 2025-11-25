@@ -11,21 +11,32 @@
 - Your target: AUC-ROC ≥ 0.85 (≥85% accuracy)
 - Goal: Statistically significant improvement with 95% confidence (bootstrapping)
 
-## Day 1-2: Data Preparation and Splitting - Juan 
+## ✅ Day 1-2: Data Preparation and Splitting - COMPLETED
 
-**What to code:**
-- Load clean dataset from Week 1
-- Separate features (X = all columns except DEATH_EVENT) from target (y = DEATH_EVENT)
-- Split data using stratify=y to keep same death rate in both sets
-- Verify death rate is ~32% in both training and test sets
+**What was completed:**
+- ✅ Loaded clean dataset from Week 1 (Datasets/training_data.csv - 1,000 patients)
+- ✅ Comprehensive feature analysis using 3 methods (correlation, mutual information, Random Forest)
+- ✅ Statistical significance testing (identified 3 significant features: time, ejection_fraction, serum_creatinine)
+- ✅ Feature engineering (created 7 new engineered features)
+- ✅ Generated feature importance rankings and visualizations
+- ✅ Verified death rate: 33% (330 deaths, 670 survived)
+- ✅ Created top_features.txt with recommended features for modeling
 
-**Expected output:**
-- Training set with ~800 patients (80%)
-- Test set with ~200 patients (20%)
-- Both sets have same ~32% death rate
-- X = 12 features, y = DEATH_EVENT (0 or 1)
+**Outputs delivered:**
+- phase_3_features/top_features.txt - Top 5 features: platelets, age, time, serum_creatinine, high_blood_pressure
+- phase_3_features/feature_importance_summary.csv - Complete ranking data
+- phase_3_features/data_with_engineered_features.csv - Enhanced dataset with 19 features (12 original + 7 engineered)
+- phase_3_features/PHASE3_FINDINGS.md - Comprehensive analysis documentation
+- phase_3_features/Phase3_Essay.md - 600-word write-up with 4 visualizations
+- 4 PNG visualizations: correlations, mutual information, RF importance, distributions
 
-## Day 3-4: Model Training
+**Ready for Juan & Nathan:**
+- Dataset location: ../Datasets/training_data.csv (1,000 patients, 33% death rate)
+- Recommended features: Use top 5 from top_features.txt OR all 12 features OR top 3 significant
+- phase_4_modeling/model_trainer.py updated with correct file paths
+- All preprocessing and feature analysis complete
+
+## Day 3-4: Model Training - Juan & Nathan
 
 **What to code:**
 - Train Decision Tree with class_weight='balanced'

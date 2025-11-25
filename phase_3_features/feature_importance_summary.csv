@@ -1,0 +1,13 @@
+Feature,Correlation_Rank,MI_Rank,RF_Rank,Significant,Avg_Rank
+platelets,3,4,3,False,3.3333333333333335
+age,2,6,5,False,4.333333333333333
+time,12,1,1,True,4.666666666666667
+serum_creatinine,1,10,4,True,5.0
+high_blood_pressure,6,2,8,False,5.333333333333333
+creatinine_phosphokinase,5,9,2,False,5.333333333333333
+smoking,8,3,11,False,7.333333333333333
+anaemia,4,8,10,False,7.333333333333333
+ejection_fraction,11,5,7,True,7.666666666666667
+diabetes,7,7,9,False,7.666666666666667
+serum_sodium,10,12,6,False,9.333333333333334
+sex,9,11,12,False,10.666666666666666

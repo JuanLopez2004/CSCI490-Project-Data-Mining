@@ -44,7 +44,7 @@ class HeartFailureModelTrainer:
     - Model persistence and management
     """
     
-    def __init__(self, data_path: str = "../data/processed/heart_failure_combined_1000.csv"):
+    def __init__(self, data_path: str = "../Datasets/training_data.csv"):
         """
         Initialize model trainer with processed dataset.
         
