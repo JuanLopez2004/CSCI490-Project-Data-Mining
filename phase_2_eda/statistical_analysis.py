@@ -20,6 +20,7 @@ import seaborn as sns
 from scipy import stats
 from scipy.stats import chi2_contingency, pearsonr
 import warnings
+import os
 warnings.filterwarnings('ignore')
 
 # Set visualization style
@@ -38,7 +39,7 @@ class HeartFailureEDA:
     - Feature relationship analysis
     """
     
-    def __init__(self, data_path: str = "../data/raw/heart_failure_clinical_records.csv"):
+    def __init__(self, data_path: str = "training_data.csv"):
         """
         Initialize EDA class with heart failure dataset.
         
@@ -360,6 +361,7 @@ def main():
     print("="*60)
     print("PHASE 2: EXPLORATORY DATA ANALYSIS")
     print("Team Leaders: Nathan (Statistical), Nasiru (Visualization)")
+    print("Working directory:", os.getcwd())
     print("="*60)
     
     # Initialize EDA
