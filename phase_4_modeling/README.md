@@ -8,33 +8,30 @@ Juan and Nathan work on this week.
 
 ## What to do
 1. Split data into training and testing sets
-2. Try 3 models: Decision Tree, Random Forest, Logistic Regression
+2. Try 2 models: Decision Tree, Random Forest
 3. Find which model has best accuracy
 4. Save the best model
 
 ## Models to try
 - **Decision Tree**: Easy to understand, shows decision rules
 - **Random Forest**: Combines many decision trees
-- **Logistic Regression**: Classic statistical method
 
 ## Simple approach
 ```python
 from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.ensemble import RandomForestClassifier  
-from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
 
 # Split data
 X = df.drop('DEATH_EVENT', axis=1)
-y = df['DEATH_EVENT'] 
+y = df['DEATH_EVENT']
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
 # Try models
 models = {
     'Decision Tree': DecisionTreeClassifier(random_state=42),
-    'Random Forest': RandomForestClassifier(random_state=42),
-    'Logistic Regression': LogisticRegression(random_state=42)
+    'Random Forest': RandomForestClassifier(random_state=42)
 }
 
 # Find best model
@@ -50,7 +47,7 @@ for name, model in models.items():
 - Document which features are most important
 
 ## Success check
-- All 3 models trained successfully  
+- Both models trained successfully
 - Best model accuracy > 0.839 (83.9%)
 - Model saved as pickle file
 - Know which model works best

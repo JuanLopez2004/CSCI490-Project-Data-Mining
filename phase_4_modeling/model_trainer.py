@@ -3,113 +3,172 @@ Phase 4: Model Development and Training
 Team: Goblins Hiding in Vents (Cameron, Julian, Juan, Nathan, Nasiru, Jose)
 Week: 4
 
-This module implements Decision Tree Classifier and other ML models for heart failure prediction.
+This module implements Decision Tree Classifier and Random Forest models for heart failure prediction.
+Trains models on both original (13 features) and engineered (20 features) datasets.
 Team Leaders: Juan (Machine Learning Engineer), Julian (Feature Engineering Specialist)
 
 Goals:
-- Implement Decision Tree Classifier with hyperparameter tuning
-- Compare with other ML algorithms (Random Forest, Logistic Regression)
+- Train Decision Tree and Random Forest on original dataset
+- Train Decision Tree and Random Forest on engineered dataset
+- Implement hyperparameter tuning with GridSearchCV
 - Implement k-fold cross-validation
-- Optimize model performance for ≥85% accuracy target
-- Prepare models for comprehensive evaluation
+- Save all 4 trained models for Phase 5 evaluation
 """
 
 import pandas as pd
 import numpy as np
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import (
-    GridSearchCV, cross_val_score, StratifiedKFold, 
-    train_test_split, validation_curve
-)
-from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import (
-    accuracy_score, precision_score, recall_score, 
-    f1_score, roc_auc_score, classification_report
-)
+from sklearn.model_selection import GridSearchCV, StratifiedKFold, train_test_split, ParameterGrid
+from tqdm.auto import tqdm
 import joblib
 import warnings
 warnings.filterwarnings('ignore')
 
+
+class GridSearchCVProgressBar(GridSearchCV):
+    """
+    GridSearchCV wrapper that displays a progress bar during training.
+
+    Shows real-time progress as hyperparameter combinations are evaluated
+    across cross-validation folds.
+    """
+
+    def _run_search(self, evaluate_candidates):
+        """Run search with progress bar."""
+        # Calculate total iterations
+        n_candidates = len(list(ParameterGrid(self.param_grid)))
+        total = n_candidates
+
+        # Create progress bar
+        with tqdm(total=total, desc="GridSearchCV Progress", unit="combo") as pbar:
+            def evaluate_candidates_progress(candidate_params):
+                result = evaluate_candidates(candidate_params)
+                pbar.update(len(candidate_params))
+                return result
+
+            super()._run_search(evaluate_candidates_progress)
+
 class HeartFailureModelTrainer:
     """
-    Comprehensive machine learning model trainer for heart failure prediction.
-    
+    Machine learning model trainer for heart failure prediction.
+
+    Trains models on both original and engineered feature sets to demonstrate
+    the value of Phase 3's feature engineering work.
+
     Responsibilities:
-    - Decision Tree Classifier implementation and optimization
-    - Multiple algorithm comparison (Random Forest, Logistic Regression)
+    - Load original (13 features) and engineered (20 features) datasets
+    - Train Decision Tree on both datasets
+    - Train Random Forest on both datasets
     - Hyperparameter tuning using GridSearchCV
-    - k-fold cross-validation for robust evaluation
-    - Model persistence and management
+    - k-fold cross-validation for robust training
+    - Save all models for Phase 5 evaluation
     """
-    
-    def __init__(self, data_path: str = "../Datasets/training_data.csv"):
-        """
-        Initialize model trainer with processed dataset.
-        
-        Args:
-            data_path: Path to processed dataset (1000 records)
-        """
-        self.data_path = data_path
-        self.df = None
-        self.X_train = None
-        self.X_test = None
-        self.y_train = None
-        self.y_test = None
-        
-        # Models
-        self.models = {}
-        self.best_models = {}
-        self.cv_scores = {}
-        
-        # Target accuracy goal
+
+    def __init__(self):
+        """Initialize model trainer with both datasets from Phase 3."""
+        # Dataset paths (from csci490/ directory)
+        self.original_train_path = "phase_3_features/datasets/train_data.csv"
+        self.original_test_path = "phase_3_features/datasets/test_data.csv"
+        self.engineered_path = "phase_3_features/results/data_with_engineered_features.csv"
+
+        # Datasets
+        self.original_data = {}  # Will hold train/test for original features
+        self.engineered_data = {}  # Will hold train/test for engineered features
+
+        # Models storage
+        self.trained_models = {}
+
+        # Target and baseline
         self.target_accuracy = 0.85
-        self.baseline_accuracy = 0.839  # Hospital baseline
-        
-        self.load_and_prepare_data()
-    
-    def load_and_prepare_data(self):
-        """Load processed data and prepare for model training."""
+        self.baseline_accuracy = 0.839
+
+        # Load both datasets
+        self.load_datasets()
+
+    def load_datasets(self):
+        """Load both original and engineered datasets from Phase 3."""
+        print("=" * 60)
+        print("LOADING DATASETS FROM PHASE 3")
+        print("=" * 60)
+
         try:
-            self.df = pd.read_csv(self.data_path)
-            print(f"✅ Processed data loaded: {self.df.shape}")
-            
-            # Prepare features and target
+            # Load original dataset (pre-split by Phase 3)
+            train_df = pd.read_csv(self.original_train_path)
+            test_df = pd.read_csv(self.original_test_path)
+
             target = 'DEATH_EVENT'
-            features = [col for col in self.df.columns if col != target]
-            
-            X = self.df[features]
-            y = self.df[target]
-            
-            # Train-test split with stratification
-            self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(
+
+            # Original features
+            features_original = [col for col in train_df.columns if col != target]
+
+            self.original_data['X_train'] = train_df[features_original]
+            self.original_data['y_train'] = train_df[target]
+            self.original_data['X_test'] = test_df[features_original]
+            self.original_data['y_test'] = test_df[target]
+            self.original_data['features'] = features_original
+
+            print(f"\n✅ Original dataset loaded (13 features)")
+            print(f"   Train: {self.original_data['X_train'].shape}")
+            print(f"   Test: {self.original_data['X_test'].shape}")
+            print(f"   Features: {len(features_original)}")
+
+        except Exception as e:
+            print(f"❌ Error loading original dataset: {e}")
+            self.original_data = None
+
+        try:
+            # Load engineered dataset
+            df_engineered = pd.read_csv(self.engineered_path)
+
+            features_engineered = [col for col in df_engineered.columns if col != target]
+
+            X = df_engineered[features_engineered]
+            y = df_engineered[target]
+
+            # Split with same random_state as Phase 3
+            X_train, X_test, y_train, y_test = train_test_split(
                 X, y, test_size=0.2, random_state=42, stratify=y
             )
-            
-            print(f"   Training set: {self.X_train.shape}")
-            print(f"   Test set: {self.X_test.shape}")
-            print(f"   Feature count: {len(features)}")
-            
-        except FileNotFoundError:
-            print(f"❌ Processed data not found. Run Phase 3 first.")
+
+            self.engineered_data['X_train'] = X_train
+            self.engineered_data['y_train'] = y_train
+            self.engineered_data['X_test'] = X_test
+            self.engineered_data['y_test'] = y_test
+            self.engineered_data['features'] = features_engineered
+
+            print(f"\n✅ Engineered dataset loaded (20 features)")
+            print(f"   Train: {X_train.shape}")
+            print(f"   Test: {X_test.shape}")
+            print(f"   Features: {len(features_engineered)}")
+
+            # Show engineered features
+            original_features = ['age', 'anaemia', 'creatinine_phosphokinase', 'diabetes',
+                               'ejection_fraction', 'high_blood_pressure', 'platelets',
+                               'serum_creatinine', 'serum_sodium', 'sex', 'smoking', 'time']
+            engineered_only = [f for f in features_engineered if f not in original_features]
+            print(f"   Engineered features: {engineered_only}")
+
         except Exception as e:
-            print(f"❌ Error loading data: {e}")
-    
-    def train_decision_tree(self):
+            print(f"❌ Error loading engineered dataset: {e}")
+            self.engineered_data = None
+
+    def train_decision_tree(self, dataset_name, X_train, y_train):
         """
-        Train and optimize Decision Tree Classifier with hyperparameter tuning.
-        
+        Train Decision Tree with hyperparameter tuning.
+
+        Args:
+            dataset_name: 'original' or 'engineered'
+            X_train: Training features
+            y_train: Training labels
+
         Returns:
-            Best DecisionTreeClassifier model
+            Best Decision Tree model
         """
-        if self.X_train is None:
-            return None
-            
-        print("\n🌳 TRAINING DECISION TREE CLASSIFIER")
-        print("="*45)
-        
-        # Decision Tree hyperparameter grid
+        print(f"\n🌳 TRAINING DECISION TREE ({dataset_name.upper()})")
+        print("=" * 50)
+
+        # Hyperparameter grid
         param_grid = {
             'criterion': ['gini', 'entropy'],
             'max_depth': [3, 5, 7, 10, 15, None],
@@ -117,63 +176,57 @@ class HeartFailureModelTrainer:
             'min_samples_leaf': [1, 2, 5, 10],
             'max_features': ['sqrt', 'log2', None]
         }
-        
-        print(f"   🔍 Hyperparameter search space: {len(param_grid['criterion']) * len(param_grid['max_depth']) * len(param_grid['min_samples_split']) * len(param_grid['min_samples_leaf']) * len(param_grid['max_features'])} combinations")
-        
-        # Initialize base model
+
+        n_combinations = (len(param_grid['criterion']) * len(param_grid['max_depth']) *
+                         len(param_grid['min_samples_split']) * len(param_grid['min_samples_leaf']) *
+                         len(param_grid['max_features']))
+
+        print(f"   🔍 Testing {n_combinations} hyperparameter combinations")
+
+        # Initialize model
         dt_model = DecisionTreeClassifier(random_state=42)
-        
-        # GridSearchCV with cross-validation
+
+        # GridSearchCV with 10-fold CV and progress bar
         cv = StratifiedKFold(n_splits=10, shuffle=True, random_state=42)
-        
-        grid_search = GridSearchCV(
+
+        grid_search = GridSearchCVProgressBar(
             estimator=dt_model,
             param_grid=param_grid,
             cv=cv,
             scoring='accuracy',
             n_jobs=-1,
-            verbose=1
+            verbose=0
         )
-        
-        # Train and find best parameters
+
+        # Train
         print("   🚀 Starting hyperparameter optimization...")
-        grid_search.fit(self.X_train, self.y_train)
-        
-        # Store best model
-        self.best_models['decision_tree'] = grid_search.best_estimator_
-        
-        print(f"\n   ✅ Best Decision Tree parameters:")
+        grid_search.fit(X_train, y_train)
+
+        # Results
+        print(f"\n   ✅ Best parameters found:")
         for param, value in grid_search.best_params_.items():
-            print(f"     {param}: {value}")
-        
-        print(f"\n   📊 Cross-validation score: {grid_search.best_score_:.4f}")
-        
-        # Test set evaluation
-        test_accuracy = grid_search.best_estimator_.score(self.X_test, self.y_test)
-        print(f"   🎯 Test set accuracy: {test_accuracy:.4f}")
-        
-        # Check if target achieved
-        if test_accuracy >= self.target_accuracy:
-            print(f"   🏆 TARGET ACHIEVED! {test_accuracy:.1%} ≥ {self.target_accuracy:.1%}")
-        else:
-            print(f"   📈 Progress: {test_accuracy:.1%} (target: {self.target_accuracy:.1%})")
-        
+            print(f"      {param}: {value}")
+
+        print(f"\n   📊 Cross-validation accuracy: {grid_search.best_score_:.4f}")
+
         return grid_search.best_estimator_
-    
-    def train_random_forest(self):
+
+    def train_random_forest(self, dataset_name, X_train, y_train):
         """
-        Train Random Forest for comparison with Decision Tree.
-        
+        Train Random Forest with hyperparameter tuning.
+
+        Args:
+            dataset_name: 'original' or 'engineered'
+            X_train: Training features
+            y_train: Training labels
+
         Returns:
-            Best RandomForestClassifier model
+            Best Random Forest model
         """
-        if self.X_train is None:
-            return None
-            
-        print("\n🌲 TRAINING RANDOM FOREST CLASSIFIER")
-        print("="*42)
-        
-        # Random Forest hyperparameter grid
+        print(f"\n🌲 TRAINING RANDOM FOREST ({dataset_name.upper()})")
+        print("=" * 50)
+
+        # Hyperparameter grid
         param_grid = {
             'n_estimators': [50, 100, 200],
             'max_depth': [3, 5, 10, 15],
@@ -181,299 +234,200 @@ class HeartFailureModelTrainer:
             'min_samples_leaf': [1, 2, 5],
             'max_features': ['sqrt', 'log2']
         }
-        
-        print(f"   🔍 Hyperparameter combinations: {len(param_grid['n_estimators']) * len(param_grid['max_depth']) * len(param_grid['min_samples_split']) * len(param_grid['min_samples_leaf']) * len(param_grid['max_features'])}")
-        
-        # Initialize base model
+
+        n_combinations = (len(param_grid['n_estimators']) * len(param_grid['max_depth']) *
+                         len(param_grid['min_samples_split']) * len(param_grid['min_samples_leaf']) *
+                         len(param_grid['max_features']))
+
+        print(f"   🔍 Testing {n_combinations} hyperparameter combinations")
+
+        # Initialize model
         rf_model = RandomForestClassifier(random_state=42, n_jobs=-1)
-        
-        # GridSearchCV
+
+        # GridSearchCV with 10-fold CV and progress bar
         cv = StratifiedKFold(n_splits=10, shuffle=True, random_state=42)
-        
-        grid_search = GridSearchCV(
+
+        grid_search = GridSearchCVProgressBar(
             estimator=rf_model,
             param_grid=param_grid,
             cv=cv,
             scoring='accuracy',
             n_jobs=-1,
-            verbose=1
+            verbose=0
         )
-        
+
         # Train
-        print("   🚀 Training Random Forest...")
-        grid_search.fit(self.X_train, self.y_train)
-        
-        # Store best model
-        self.best_models['random_forest'] = grid_search.best_estimator_
-        
-        print(f"\n   ✅ Best Random Forest parameters:")
+        print("   🚀 Starting hyperparameter optimization...")
+        grid_search.fit(X_train, y_train)
+
+        # Results
+        print(f"\n   ✅ Best parameters found:")
         for param, value in grid_search.best_params_.items():
-            print(f"     {param}: {value}")
-        
-        print(f"\n   📊 Cross-validation score: {grid_search.best_score_:.4f}")
-        
-        test_accuracy = grid_search.best_estimator_.score(self.X_test, self.y_test)
-        print(f"   🎯 Test set accuracy: {test_accuracy:.4f}")
-        
+            print(f"      {param}: {value}")
+
+        print(f"\n   📊 Cross-validation accuracy: {grid_search.best_score_:.4f}")
+
         return grid_search.best_estimator_
-    
-    def train_logistic_regression(self):
-        """
-        Train Logistic Regression for baseline comparison.
-        
-        Returns:
-            Best LogisticRegression model
-        """
-        if self.X_train is None:
-            return None
-            
-        print("\n📈 TRAINING LOGISTIC REGRESSION")
-        print("="*35)
-        
-        # Scale features for logistic regression
-        scaler = StandardScaler()
-        X_train_scaled = scaler.fit_transform(self.X_train)
-        X_test_scaled = scaler.transform(self.X_test)
-        
-        # Logistic Regression hyperparameter grid
-        param_grid = {
-            'C': [0.001, 0.01, 0.1, 1, 10, 100],
-            'penalty': ['l1', 'l2'],
-            'solver': ['liblinear', 'saga']
-        }
-        
-        # Initialize base model
-        lr_model = LogisticRegression(random_state=42, max_iter=1000)
-        
-        # GridSearchCV
-        cv = StratifiedKFold(n_splits=10, shuffle=True, random_state=42)
-        
-        grid_search = GridSearchCV(
-            estimator=lr_model,
-            param_grid=param_grid,
-            cv=cv,
-            scoring='accuracy',
-            n_jobs=-1
+
+    def train_all_models(self):
+        """Train all 4 models (2 algorithms × 2 datasets)."""
+        if not self.original_data or not self.engineered_data:
+            print("❌ Cannot train models without both datasets")
+            return
+
+        # 1. Decision Tree - Original
+        dt_original = self.train_decision_tree(
+            'original',
+            self.original_data['X_train'],
+            self.original_data['y_train']
         )
-        
-        # Train
-        print("   🚀 Training Logistic Regression...")
-        grid_search.fit(X_train_scaled, self.y_train)
-        
-        # Store best model and scaler
-        self.best_models['logistic_regression'] = {
-            'model': grid_search.best_estimator_,
-            'scaler': scaler
-        }
-        
-        print(f"\n   ✅ Best Logistic Regression parameters:")
-        for param, value in grid_search.best_params_.items():
-            print(f"     {param}: {value}")
-        
-        print(f"\n   📊 Cross-validation score: {grid_search.best_score_:.4f}")
-        
-        test_accuracy = grid_search.best_estimator_.score(X_test_scaled, self.y_test)
-        print(f"   🎯 Test set accuracy: {test_accuracy:.4f}")
-        
-        return grid_search.best_estimator_
-    
-    def perform_model_comparison(self):
-        """
-        Compare all trained models and select the best performer.
-        
-        Returns:
-            Dictionary with model comparison results
-        """
-        if not self.best_models:
-            print("❌ No models trained yet. Train models first.")
-            return None
-            
-        print("\n🏁 MODEL COMPARISON ANALYSIS")
-        print("="*35)
-        
-        comparison_results = {}
-        
-        for model_name, model_info in self.best_models.items():
-            print(f"\n   📊 Evaluating {model_name.replace('_', ' ').title()}:")
-            
-            # Handle different model types
-            if model_name == 'logistic_regression':
-                model = model_info['model']
-                scaler = model_info['scaler']
-                X_test_processed = scaler.transform(self.X_test)
-            else:
-                model = model_info
-                X_test_processed = self.X_test
-            
-            # Make predictions
-            y_pred = model.predict(X_test_processed)
-            y_prob = model.predict_proba(X_test_processed)[:, 1]
-            
-            # Calculate metrics
-            accuracy = accuracy_score(self.y_test, y_pred)
-            precision = precision_score(self.y_test, y_pred)
-            recall = recall_score(self.y_test, y_pred)
-            f1 = f1_score(self.y_test, y_pred)
-            auc_roc = roc_auc_score(self.y_test, y_prob)
-            
-            # Cross-validation score
-            cv = StratifiedKFold(n_splits=10, shuffle=True, random_state=42)
-            if model_name == 'logistic_regression':
-                X_train_processed = scaler.transform(self.X_train)
-                cv_scores = cross_val_score(model, X_train_processed, self.y_train, cv=cv, scoring='accuracy')
-            else:
-                cv_scores = cross_val_score(model, self.X_train, self.y_train, cv=cv, scoring='accuracy')
-            
-            # Store results
-            comparison_results[model_name] = {
-                'accuracy': accuracy,
-                'precision': precision,
-                'recall': recall,
-                'f1_score': f1,
-                'auc_roc': auc_roc,
-                'cv_mean': cv_scores.mean(),
-                'cv_std': cv_scores.std(),
-                'target_achieved': accuracy >= self.target_accuracy,
-                'beats_baseline': accuracy > self.baseline_accuracy
-            }
-            
-            # Print results
-            print(f"     Accuracy: {accuracy:.4f} ({'✅' if accuracy >= self.target_accuracy else '📈'})")
-            print(f"     Precision: {precision:.4f}")
-            print(f"     Recall: {recall:.4f}")
-            print(f"     F1-Score: {f1:.4f}")
-            print(f"     AUC-ROC: {auc_roc:.4f}")
-            print(f"     CV Score: {cv_scores.mean():.4f} ± {cv_scores.std():.4f}")
-            
-            if accuracy >= self.target_accuracy:
-                print(f"     🏆 TARGET ACHIEVED!")
-            if accuracy > self.baseline_accuracy:
-                improvement = (accuracy - self.baseline_accuracy) * 100
-                print(f"     📈 Hospital improvement: +{improvement:.1f}%")
-        
-        # Find best model
-        best_model_name = max(comparison_results.keys(), 
-                             key=lambda x: comparison_results[x]['accuracy'])
-        
-        print(f"\n🏆 BEST MODEL: {best_model_name.replace('_', ' ').title()}")
-        print(f"   Accuracy: {comparison_results[best_model_name]['accuracy']:.4f}")
-        
-        return comparison_results, best_model_name
-    
-    def save_models(self, output_dir="../models/"):
-        """Save all trained models for future use."""
+        self.trained_models['decision_tree_original'] = dt_original
+        print("✅ Model 1/4 complete: Decision Tree (Original)\n")
+
+        # 2. Decision Tree - Engineered
+        dt_engineered = self.train_decision_tree(
+            'engineered',
+            self.engineered_data['X_train'],
+            self.engineered_data['y_train']
+        )
+        self.trained_models['decision_tree_engineered'] = dt_engineered
+        print("✅ Model 2/4 complete: Decision Tree (Engineered)\n")
+
+        # 3. Random Forest - Original
+        rf_original = self.train_random_forest(
+            'original',
+            self.original_data['X_train'],
+            self.original_data['y_train']
+        )
+        self.trained_models['random_forest_original'] = rf_original
+        print("✅ Model 3/4 complete: Random Forest (Original)\n")
+
+        # 4. Random Forest - Engineered
+        rf_engineered = self.train_random_forest(
+            'engineered',
+            self.engineered_data['X_train'],
+            self.engineered_data['y_train']
+        )
+        self.trained_models['random_forest_engineered'] = rf_engineered
+        print("✅ Model 4/4 complete: Random Forest (Engineered)\n")
+
+        print("✅ All 4 models trained successfully!")
+
+    def save_models(self, output_dir="phase_4_modeling/models/"):
+        """Save all trained models and feature names for Phase 5."""
         import os
         os.makedirs(output_dir, exist_ok=True)
-        
+
         print(f"\n💾 SAVING MODELS TO {output_dir}")
-        print("="*25)
-        
-        for model_name, model_info in self.best_models.items():
-            if model_name == 'logistic_regression':
-                # Save both model and scaler
-                model_path = f"{output_dir}{model_name}_model.joblib"
-                scaler_path = f"{output_dir}{model_name}_scaler.joblib"
-                
-                joblib.dump(model_info['model'], model_path)
-                joblib.dump(model_info['scaler'], scaler_path)
-                
-                print(f"   ✅ {model_name}: model + scaler saved")
-            else:
-                model_path = f"{output_dir}{model_name}.joblib"
-                joblib.dump(model_info, model_path)
-                
-                print(f"   ✅ {model_name}: saved")
-        
-        # Save feature names
-        feature_names = list(self.X_train.columns)
-        joblib.dump(feature_names, f"{output_dir}feature_names.joblib")
-        print(f"   ✅ Feature names saved")
-    
+        print("=" * 40)
+
+        # Save all 4 models
+        for model_name, model in self.trained_models.items():
+            model_path = f"{output_dir}{model_name}.joblib"
+            joblib.dump(model, model_path)
+            print(f"   ✅ {model_name}.joblib")
+
+        # Save feature names for both datasets
+        if self.original_data:
+            features_original = self.original_data['features']
+            joblib.dump(features_original, f"{output_dir}feature_names_original.joblib")
+            print(f"   ✅ feature_names_original.joblib ({len(features_original)} features)")
+
+        if self.engineered_data:
+            features_engineered = self.engineered_data['features']
+            joblib.dump(features_engineered, f"{output_dir}feature_names_engineered.joblib")
+            print(f"   ✅ feature_names_engineered.joblib ({len(features_engineered)} features)")
+
+        print(f"\n📦 Total files saved: {len(self.trained_models) + 2}")
+        print("🎯 Ready for Phase 5 evaluation!")
+
     def generate_training_report(self):
-        """Generate comprehensive training report."""
-        print("\n📋 PHASE 4 MODEL TRAINING REPORT")
-        print("="*40)
+        """Generate Phase 4 training summary report."""
+        print("\n" + "=" * 60)
+        print("📋 PHASE 4 MODEL TRAINING SUMMARY")
+        print("=" * 60)
         print("Team: Goblins Hiding in Vents")
-        print("Phase: 4 - Model Development")
+        print("Phase: 4 - Model Development and Training")
         print("Team Leaders: Juan (ML Engineer), Julian (Feature Engineering)")
-        print("="*40)
-        
-        print(f"\n🎯 PROJECT GOALS:")
-        print(f"   Target Accuracy: ≥{self.target_accuracy:.1%}")
-        print(f"   Hospital Baseline: {self.baseline_accuracy:.1%}")
-        print(f"   Dataset Size: {len(self.df)} records (299 original + 701 synthetic)")
-        print(f"   Features Used: {self.X_train.shape[1]}")
-        
-        print(f"\n🏆 ACHIEVEMENTS:")
-        if self.best_models:
-            best_accuracy = max([
-                self.best_models[name].score(self.X_test, self.y_test) if name != 'logistic_regression'
-                else self.best_models[name]['model'].score(self.best_models[name]['scaler'].transform(self.X_test), self.y_test)
-                for name in self.best_models.keys()
-            ])
-            
-            if best_accuracy >= self.target_accuracy:
-                print(f"   ✅ Target achieved: {best_accuracy:.1%}")
-            else:
-                print(f"   📈 Best performance: {best_accuracy:.1%}")
-            
-            if best_accuracy > self.baseline_accuracy:
-                improvement = (best_accuracy - self.baseline_accuracy) * 100
-                print(f"   🏥 Hospital improvement: +{improvement:.1f}%")
-        
-        print(f"\n🔬 METHODOLOGICAL STRENGTHS:")
-        print("   • Comprehensive hyperparameter optimization")
-        print("   • 10-fold stratified cross-validation")
-        print("   • Multiple algorithm comparison")
-        print("   • Robust train-test splitting")
-        print("   • Feature engineering from Phase 3")
-        print("   • Synthetic data augmentation")
-        
-        print(f"\n📈 READY FOR PHASE 5: MODEL EVALUATION")
-        print("   Next: ROC curves, bootstrap validation, statistical testing")
+        print("=" * 60)
+
+        print(f"\n🎯 TRAINING OBJECTIVES:")
+        print(f"   • Train models on original (13) and engineered (20) features")
+        print(f"   • Demonstrate value of Phase 3 feature engineering")
+        print(f"   • Optimize hyperparameters with GridSearchCV")
+        print(f"   • Use 10-fold stratified cross-validation")
+        print(f"   • Target: ≥{self.target_accuracy:.1%} accuracy")
+        print(f"   • Baseline: {self.baseline_accuracy:.1%} (hospital)")
+
+        print(f"\n🤖 MODELS TRAINED:")
+        print(f"   ✅ Decision Tree - Original (13 features)")
+        print(f"   ✅ Decision Tree - Engineered (20 features)")
+        print(f"   ✅ Random Forest - Original (13 features)")
+        print(f"   ✅ Random Forest - Engineered (20 features)")
+
+        print(f"\n📊 DATASETS USED:")
+        if self.original_data:
+            print(f"   Original: {len(self.original_data['X_train']) + len(self.original_data['X_test'])} samples")
+            print(f"     - Train: {len(self.original_data['X_train'])}")
+            print(f"     - Test: {len(self.original_data['X_test'])}")
+            print(f"     - Features: 13 (age, anaemia, CPK, diabetes, EF, BP, etc.)")
+
+        if self.engineered_data:
+            print(f"\n   Engineered: {len(self.engineered_data['X_train']) + len(self.engineered_data['X_test'])} samples")
+            print(f"     - Train: {len(self.engineered_data['X_train'])}")
+            print(f"     - Test: {len(self.engineered_data['X_test'])}")
+            print(f"     - Features: 20 (13 original + 7 engineered)")
+            print(f"     - Engineered: kidney_heart_risk, cv_risk_score, severe_ef,")
+            print(f"                   high_creatinine, low_sodium, age_time_risk, critical_patient")
+
+        print(f"\n🔬 METHODOLOGY:")
+        print(f"   • Hyperparameter optimization: GridSearchCV")
+        print(f"   • Cross-validation: 10-fold stratified")
+        print(f"   • Random state: 42 (reproducibility)")
+        print(f"   • Scoring metric: Accuracy")
+
+        print(f"\n📈 NEXT PHASE: PHASE 5 - MODEL EVALUATION")
+        print(f"   Phase 5 will perform comprehensive evaluation:")
+        print(f"   • ROC curve analysis and AUC scores")
+        print(f"   • Bootstrap validation (confidence intervals)")
+        print(f"   • Statistical significance testing vs baseline")
+        print(f"   • Confusion matrices and detailed metrics")
+        print(f"   • Compare original vs engineered feature performance")
+        print(f"   • Select best overall model")
+
+        print("\n" + "=" * 60)
+        print("✅ PHASE 4 COMPLETE - MODELS READY FOR EVALUATION")
+        print("=" * 60)
 
 
 def main():
     """
     Main function to execute Phase 4 model training workflow.
-    
-    Team Usage:
-    - Juan: Lead model development and hyperparameter tuning
-    - Julian: Support with feature validation and model optimization
+
+    Trains 4 models (Decision Tree and Random Forest on both datasets)
+    and saves them for Phase 5 evaluation.
     """
-    print("="*60)
+    print("=" * 60)
     print("PHASE 4: MODEL DEVELOPMENT & TRAINING")
     print("Team Leaders: Juan (ML Engineer), Julian (Feature Engineering)")
-    print("Goal: Achieve ≥85% accuracy with Decision Tree and comparisons")
-    print("="*60)
-    
-    # Initialize model trainer
+    print("Goal: Train models on original and engineered features")
+    print("=" * 60)
+
+    # Initialize trainer (loads both datasets)
     trainer = HeartFailureModelTrainer()
-    
-    if trainer.X_train is not None:
-        print("\n🤖 Starting comprehensive model training...")
-        
-        # Train all models
-        dt_model = trainer.train_decision_tree()
-        rf_model = trainer.train_random_forest()
-        lr_model = trainer.train_logistic_regression()
-        
-        # Model comparison
-        if trainer.best_models:
-            comparison_results, best_model = trainer.perform_model_comparison()
-            
-            # Save models
-            trainer.save_models()
-            
-            # Generate report
-            trainer.generate_training_report()
-            
-            print("\n✅ Phase 4 model training completed!")
-            print(f"🏆 Best model: {best_model.replace('_', ' ').title()}")
-            print("📊 All models saved for Phase 5 evaluation")
-        
+
+    if trainer.original_data and trainer.engineered_data:
+        # Train all 4 models
+        trainer.train_all_models()
+
+        # Save models for Phase 5
+        trainer.save_models()
+
+        # Generate summary report
+        trainer.generate_training_report()
+
     else:
-        print("❌ Cannot proceed without processed data. Run Phases 1-3 first.")
+        print("❌ Cannot proceed without both datasets. Check Phase 3 outputs.")
 
 
 if __name__ == "__main__":
