@@ -1,4 +1,4 @@
-# Heart Failure Prediction Project
+# Heart Failure Death Prediction Project
 
 ## Quick Setup
 
@@ -10,33 +10,36 @@
 2. Run the project:
    ```bash
    # Week 1: Load data and find important features
-   # Week 2: Train 3 models and pick the best one  
+   # Week 2: Train 2 models and pick the best one  
    # Week 3: Test model and create results
    ```
 
+# Report
+https://docs.google.com/document/d/1msmjJTCvr_jGWxEDkG7skRPZHUm-C83VT3l_gDnY5_U/edit?usp=sharing
+
 ## Project Goal
 
-Build a machine learning model to predict heart failure better than hospital baseline of 83.9%.
+Build a machine learning model to predict heart failure death better than the Seattle Heart Failure Model
 
 **Timeline:** 3 weeks maximum
 **Team:** 6 people (2 per week)
 
 ## Simple Weekly Plans
 
-**Week 1:** Load dataset, find top 3 predictive features, make correlation chart
-**Week 2:** Train Decision Tree, Random Forest, Logistic Regression, save best model
+**Week 1:** Load dataset, find top 5 predictive features, make correlation chart
+**Week 2:** Train Decision Tree, Random Forest, save best model
 **Week 3:** Test saved model, create ROC curve and results chart
 
 ## Dataset
 
 UCI Heart Failure Clinical Records:
-- 299 patients
+- 1002 patients
 - 12 features (age, blood pressure, etc.)
 - Target: DEATH_EVENT (0=survived, 1=died)
 
 ## Success Criteria
 
-**Minimum:** Beat 83.9% hospital baseline
+**Minimum:** Beat Seattle Heart Failure Model 70% baseline
 **Target:** Document final accuracy and create simple presentation
 
 ## Files
