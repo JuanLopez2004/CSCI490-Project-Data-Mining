@@ -14,6 +14,9 @@
    # Week 3: Test model and create results
    ```
 
+# Report
+https://docs.google.com/document/d/1msmjJTCvr_jGWxEDkG7skRPZHUm-C83VT3l_gDnY5_U/edit?usp=sharing
+
 ## Project Goal
 
 Build a machine learning model to predict heart failure death better than the Seattle Heart Failure Model
