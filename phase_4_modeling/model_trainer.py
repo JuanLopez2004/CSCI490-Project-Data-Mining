@@ -34,20 +34,57 @@ class GridSearchCVProgressBar(GridSearchCV):
     across cross-validation folds.
     """
 
-    def _run_search(self, evaluate_candidates):
-        """Run search with progress bar."""
-        # Calculate total iterations
-        n_candidates = len(list(ParameterGrid(self.param_grid)))
-        total = n_candidates
+    def fit(self, X, y=None, **fit_params):
+        """Fit with progress bar showing each hyperparameter combination."""
+        from sklearn.model_selection import cross_val_score
+        from sklearn.base import clone
+        import numpy as np
 
-        # Create progress bar
-        with tqdm(total=total, desc="GridSearchCV Progress", unit="combo") as pbar:
-            def evaluate_candidates_progress(candidate_params):
-                result = evaluate_candidates(candidate_params)
-                pbar.update(len(candidate_params))
-                return result
+        # Get all parameter combinations
+        param_combinations = list(ParameterGrid(self.param_grid))
 
-            super()._run_search(evaluate_candidates_progress)
+        # Progress bar
+        with tqdm(total=len(param_combinations), desc="GridSearchCV", unit="combo") as pbar:
+            all_scores = []
+            all_params = []
+
+            for params in param_combinations:
+                # Clone estimator and set parameters
+                model = clone(self.estimator)
+                model.set_params(**params)
+
+                # Cross-validate this combination
+                scores = cross_val_score(
+                    model, X, y,
+                    cv=self.cv,
+                    scoring=self.scoring,
+                    n_jobs=self.n_jobs
+                )
+
+                all_scores.append(scores.mean())
+                all_params.append(params)
+
+                # Update progress bar
+                pbar.update(1)
+
+            # Find best parameters
+            best_idx = np.argmax(all_scores)
+            self.best_params_ = all_params[best_idx]
+            self.best_score_ = all_scores[best_idx]
+
+            # Store results for compatibility
+            self.cv_results_ = {
+                'mean_test_score': np.array(all_scores),
+                'params': all_params
+            }
+
+            # Refit on full data with best parameters
+            if self.refit:
+                self.best_estimator_ = clone(self.estimator)
+                self.best_estimator_.set_params(**self.best_params_)
+                self.best_estimator_.fit(X, y, **fit_params)
+
+            return self
 
 class HeartFailureModelTrainer:
     """
@@ -194,7 +231,7 @@ class HeartFailureModelTrainer:
             param_grid=param_grid,
             cv=cv,
             scoring='accuracy',
-            n_jobs=-1,
+            n_jobs=-1,  # Parallelize CV folds within each combo
             verbose=0
         )
 
@@ -252,7 +289,7 @@ class HeartFailureModelTrainer:
             param_grid=param_grid,
             cv=cv,
             scoring='accuracy',
-            n_jobs=-1,
+            n_jobs=-1,  # Parallelize CV folds within each combo
             verbose=0
         )
 

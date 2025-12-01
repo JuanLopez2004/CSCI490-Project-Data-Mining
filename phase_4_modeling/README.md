@@ -1,60 +1,66 @@
-# Week 2: Machine Learning Models
+# Phase 4: Model Development and Training
 
 ## Goal
-Build and test 3 different models to predict heart failure.
+Train Decision Tree and Random Forest models on both original and engineered datasets to demonstrate the value of Phase 3's feature engineering.
 
 ## Team
-Juan and Nathan work on this week.
+Nathan and Juan lead this phase.
 
 ## What to do
-1. Split data into training and testing sets
-2. Try 2 models: Decision Tree, Random Forest
-3. Find which model has best accuracy
-4. Save the best model
+1. Load original dataset (13 features) from Phase 3
+2. Load engineered dataset (20 features) from Phase 3
+3. Train Decision Tree and Random Forest on both datasets (4 models total)
+4. Optimize hyperparameters with GridSearchCV
+5. Save all 4 models for Phase 5 evaluation
 
-## Models to try
-- **Decision Tree**: Easy to understand, shows decision rules
-- **Random Forest**: Combines many decision trees
+## Models Trained
+- **Decision Tree (Original)**: 13 features from Phase 3 split data
+- **Decision Tree (Engineered)**: 20 features (13 original + 7 engineered)
+- **Random Forest (Original)**: 13 features from Phase 3 split data
+- **Random Forest (Engineered)**: 20 features (13 original + 7 engineered)
 
-## Simple approach
-```python
-from sklearn.model_selection import train_test_split
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score
+## Implementation Details
+- **Hyperparameter Tuning**: GridSearchCV tests hundreds of parameter combinations
+- **Cross-Validation**: 10-fold stratified CV for robust evaluation
+- **Progress Tracking**: Real-time progress bars show training status
+- **Parallelization**: CV folds run in parallel for faster training
+- **Data Sources**:
+  - Original: `phase_3_features/datasets/train_data.csv` + `test_data.csv`
+  - Engineered: `phase_3_features/results/data_with_engineered_features.csv`
 
-# Split data
-X = df.drop('DEATH_EVENT', axis=1)
-y = df['DEATH_EVENT']
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-# Try models
-models = {
-    'Decision Tree': DecisionTreeClassifier(random_state=42),
-    'Random Forest': RandomForestClassifier(random_state=42)
-}
-
-# Find best model
-for name, model in models.items():
-    model.fit(X_train, y_train)
-    score = accuracy_score(y_test, model.predict(X_test))
-    print(f'{name}: {score:.3f}')
+## Running Phase 4
+```bash
+# From csci490/ directory
+python phase_4_modeling/model_trainer.py
 ```
 
-## Target
-- Beat hospital baseline of 83.9% accuracy
-- Save best performing model
-- Document which features are most important
+Expected output:
+- Training progress for all 4 models with progress bars
+- Best hyperparameters found for each model
+- Cross-validation accuracy scores
+- All models saved to `phase_4_modeling/models/`
 
-## Success check
-- Both models trained successfully
-- Best model accuracy > 0.839 (83.9%)
-- Model saved as pickle file
-- Know which model works best
+## Outputs Saved for Phase 5
+All files saved to `phase_4_modeling/models/`:
+- `decision_tree_original.joblib` - Decision Tree trained on 13 features
+- `decision_tree_engineered.joblib` - Decision Tree trained on 20 features
+- `random_forest_original.joblib` - Random Forest trained on 13 features
+- `random_forest_engineered.joblib` - Random Forest trained on 20 features
+- `feature_names_original.joblib` - List of 13 original feature names
+- `feature_names_engineered.joblib` - List of 20 engineered feature names
 
-## Files to create
-- `week2_modeling.py` - Main training script
-- `best_model.pkl` - Saved best model
+## Success Criteria
+- ✅ All 4 models trained successfully with GridSearchCV
+- ✅ Hyperparameter optimization completes for each model
+- ✅ Cross-validation scores calculated (10-fold stratified)
+- ✅ All 6 files saved to models directory
+- ✅ Ready for Phase 5 comprehensive evaluation
 
-## Next week
-Move to Week 3: Test the saved model thoroughly and create final presentation.
+## Next Phase
+**Phase 5: Model Evaluation & Validation**
+- Load all 4 trained models
+- Generate ROC curves and AUC analysis
+- Perform bootstrap validation for confidence intervals
+- Statistical significance testing vs 83.9% baseline
+- Compare original vs engineered feature performance
+- Select best overall model
