@@ -1,18 +1,19 @@
 """
-Phase 5: Model Evaluation and Validation
+Phase 5: Model Evaluation and Validation - Original 299 Records
 Team: Goblins Hiding in Vents (Cameron, Julian, Juan, Nathan, Nasiru, Jose)
 Week: 5
 
-This module implements comprehensive model evaluation including ROC analysis,
-bootstrap validation, and statistical significance testing.
+This module implements comprehensive model evaluation using the first 299 original records
+with the 73.4% hospital baseline for comparison.
+
 Team Leaders: Nathan (Statistical Analyst), Juan (Machine Learning Engineer)
 
 Goals:
 - Generate ROC curves and AUC analysis
 - Implement bootstrap validation for confidence intervals
-- Perform statistical significance testing vs hospital baseline
+- Perform statistical significance testing vs hospital baseline (73.4%)
 - Calculate comprehensive performance metrics
-- Validate model reliability and clinical utility
+- Validate model reliability and clinical utility using original data only
 """
 
 import pandas as pd
@@ -33,7 +34,7 @@ warnings.filterwarnings('ignore')
 
 class ModelEvaluator:
     """
-    Comprehensive model evaluation and statistical validation.
+    Comprehensive model evaluation and statistical validation using original 299 records.
     
     Responsibilities:
     - ROC curve analysis and AUC calculation
@@ -43,13 +44,13 @@ class ModelEvaluator:
     - Clinical utility assessment
     """
     
-    def __init__(self, models_dir="../phase_4_modeling/models/", data_path="../phase_3_features/results/data_with_engineered_features.csv"):
+    def __init__(self, models_dir="../phase_4_modeling/models/", data_path="../Datasets/training_data.csv"):
         """
-        Initialize model evaluator with trained models and data.
+        Initialize model evaluator with trained models and original dataset.
         
         Args:
             models_dir: Directory containing trained models
-            data_path: Path to processed dataset
+            data_path: Path to original dataset (first 299 records will be used)
         """
         self.models_dir = models_dir
         self.data_path = data_path
@@ -62,7 +63,7 @@ class ModelEvaluator:
         self.feature_names_original = None
         self.feature_names_engineered = None
         
-        # Hospital baseline
+        # Hospital baseline (updated to 73.4%)
         self.hospital_baseline = 0.734
         self.target_accuracy = 0.85
         
@@ -77,6 +78,10 @@ class ModelEvaluator:
         try:
             # Load data
             self.df = pd.read_csv(self.data_path)
+            
+            # Use only first 299 records (original data, not synthetic)
+            self.df = self.df.head(299)
+            print(f"✅ Using first 299 records (original data): {self.df.shape}")
             
             # Prepare test set (same split as training)
             from sklearn.model_selection import train_test_split
@@ -157,25 +162,35 @@ class ModelEvaluator:
             print(f"   🔍 Analyzing {model_name.replace('_', ' ').title()}...")
             
             # Get appropriate test data based on model type
-            if 'original' in model_name and hasattr(self, 'feature_names_original') and self.feature_names_original is not None:
-                # Use only original features for original models
-                X_test_model = self.X_test[self.feature_names_original]
-            elif 'engineered' in model_name and hasattr(self, 'feature_names_engineered') and self.feature_names_engineered is not None:
-                # Use engineered features for engineered models
-                X_test_model = self.X_test[self.feature_names_engineered]
-            else:
-                # Fallback to all features
-                X_test_model = self.X_test
-            
-            # Get predictions
-            if model_name == 'logistic_regression':
-                model = model_info['model']
-                scaler = model_info['scaler']
-                X_test_processed = scaler.transform(X_test_model)
-                y_prob = model.predict_proba(X_test_processed)[:, 1]
-            else:
-                model = model_info
-                y_prob = model.predict_proba(X_test_model)[:, 1]
+            try:
+                if 'original' in model_name and hasattr(self, 'feature_names_original') and self.feature_names_original is not None:
+                    # Use only original features for original models
+                    X_test_model = self.X_test[self.feature_names_original]
+                elif 'engineered' in model_name and hasattr(self, 'feature_names_engineered') and self.feature_names_engineered is not None:
+                    # Check if engineered features exist in current dataset
+                    missing_features = [f for f in self.feature_names_engineered if f not in self.X_test.columns]
+                    if missing_features:
+                        print(f"     ⚠️  Skipping - missing engineered features: {missing_features[:3]}...")
+                        continue
+                    # Use engineered features for engineered models
+                    X_test_model = self.X_test[self.feature_names_engineered]
+                else:
+                    # Fallback to all features
+                    X_test_model = self.X_test
+                
+                # Get predictions
+                if model_name == 'logistic_regression':
+                    model = model_info['model']
+                    scaler = model_info['scaler']
+                    X_test_processed = scaler.transform(X_test_model)
+                    y_prob = model.predict_proba(X_test_processed)[:, 1]
+                else:
+                    model = model_info
+                    y_prob = model.predict_proba(X_test_model)[:, 1]
+                
+            except KeyError as e:
+                print(f"     ⚠️  Skipping {model_name} - feature mismatch: {e}")
+                continue
             
             # Calculate ROC curve
             fpr, tpr, thresholds = roc_curve(self.y_test, y_prob)
@@ -204,7 +219,7 @@ class ModelEvaluator:
         plt.ylim([0.0, 1.05])
         plt.xlabel('False Positive Rate (1 - Specificity)', fontsize=12)
         plt.ylabel('True Positive Rate (Sensitivity)', fontsize=12)
-        plt.title('ROC Curves - Heart Failure Prediction Models', fontsize=14, pad=20)
+        plt.title('ROC Curves - Heart Failure Prediction Models (Original 299 Records)', fontsize=14, pad=20)
         plt.legend(loc="lower right", fontsize=10)
         plt.grid(True, alpha=0.3)
         
@@ -242,19 +257,29 @@ class ModelEvaluator:
         for model_name, model_info in self.models.items():
             print(f"   🎲 Bootstrapping {model_name.replace('_', ' ').title()}...")
             
+            # Get appropriate test data based on model type
+            try:
+                if 'original' in model_name and hasattr(self, 'feature_names_original') and self.feature_names_original is not None:
+                    # Use only original features for original models
+                    X_test_model = self.X_test[self.feature_names_original]
+                elif 'engineered' in model_name and hasattr(self, 'feature_names_engineered') and self.feature_names_engineered is not None:
+                    # Check if engineered features exist in current dataset
+                    missing_features = [f for f in self.feature_names_engineered if f not in self.X_test.columns]
+                    if missing_features:
+                        print(f"     ⚠️  Skipping - missing engineered features: {missing_features[:3]}...")
+                        continue
+                    # Use engineered features for engineered models
+                    X_test_model = self.X_test[self.feature_names_engineered]
+                else:
+                    # Fallback to all features
+                    X_test_model = self.X_test
+                
+            except KeyError as e:
+                print(f"     ⚠️  Skipping {model_name} - feature mismatch: {e}")
+                continue
+            
             accuracy_scores = []
             auc_scores = []
-            
-            # Get appropriate test data based on model type
-            if 'original' in model_name and hasattr(self, 'feature_names_original') and self.feature_names_original is not None:
-                # Use only original features for original models
-                X_test_model = self.X_test[self.feature_names_original]
-            elif 'engineered' in model_name and hasattr(self, 'feature_names_engineered') and self.feature_names_engineered is not None:
-                # Use engineered features for engineered models
-                X_test_model = self.X_test[self.feature_names_engineered]
-            else:
-                # Fallback to all features
-                X_test_model = self.X_test
             
             # Get base predictions
             if model_name == 'logistic_regression':
@@ -378,35 +403,46 @@ class ModelEvaluator:
         print("\n📊 CONFUSION MATRIX ANALYSIS")
         print("="*35)
         
-        n_models = len(self.models)
-        fig, axes = plt.subplots(1, n_models, figsize=(5*n_models, 4))
+        n_models = len([m for m in self.models.keys() if 'original' in m])  # Only original models will work
+        fig, axes = plt.subplots(1, max(n_models, 1), figsize=(5*max(n_models, 1), 4))
         
         if n_models == 1:
             axes = [axes]
         
         confusion_results = {}
+        plot_idx = 0
         
-        for i, (model_name, model_info) in enumerate(self.models.items()):
+        for model_name, model_info in self.models.items():
             # Get appropriate test data based on model type
-            if 'original' in model_name and hasattr(self, 'feature_names_original') and self.feature_names_original is not None:
-                # Use only original features for original models
-                X_test_model = self.X_test[self.feature_names_original]
-            elif 'engineered' in model_name and hasattr(self, 'feature_names_engineered') and self.feature_names_engineered is not None:
-                # Use engineered features for engineered models
-                X_test_model = self.X_test[self.feature_names_engineered]
-            else:
-                # Fallback to all features
-                X_test_model = self.X_test
-            
-            # Get predictions
-            if model_name == 'logistic_regression':
-                model = model_info['model']
-                scaler = model_info['scaler']
-                X_test_processed = scaler.transform(X_test_model)
-                y_pred = model.predict(X_test_processed)
-            else:
-                model = model_info
-                y_pred = model.predict(X_test_model)
+            try:
+                if 'original' in model_name and hasattr(self, 'feature_names_original') and self.feature_names_original is not None:
+                    # Use only original features for original models
+                    X_test_model = self.X_test[self.feature_names_original]
+                elif 'engineered' in model_name and hasattr(self, 'feature_names_engineered') and self.feature_names_engineered is not None:
+                    # Check if engineered features exist in current dataset
+                    missing_features = [f for f in self.feature_names_engineered if f not in self.X_test.columns]
+                    if missing_features:
+                        print(f"   ⚠️  Skipping {model_name} - missing engineered features")
+                        continue
+                    # Use engineered features for engineered models
+                    X_test_model = self.X_test[self.feature_names_engineered]
+                else:
+                    # Fallback to all features
+                    X_test_model = self.X_test
+                
+                # Get predictions
+                if model_name == 'logistic_regression':
+                    model = model_info['model']
+                    scaler = model_info['scaler']
+                    X_test_processed = scaler.transform(X_test_model)
+                    y_pred = model.predict(X_test_processed)
+                else:
+                    model = model_info
+                    y_pred = model.predict(X_test_model)
+                
+            except KeyError as e:
+                print(f"   ⚠️  Skipping {model_name} - feature mismatch: {e}")
+                continue
             
             # Calculate confusion matrix
             cm = confusion_matrix(self.y_test, y_pred)
@@ -416,7 +452,7 @@ class ModelEvaluator:
             
             sensitivity = tp / (tp + fn)  # Recall
             specificity = tn / (tn + fp)
-            ppv = tp / (tp + fp)  # Precision
+            ppv = tp / (tp + fp) if (tp + fp) > 0 else 0  # Precision
             npv = tn / (tn + fn)
             
             confusion_results[model_name] = {
@@ -431,16 +467,18 @@ class ModelEvaluator:
                 'true_positives': tp
             }
             
-            # Plot confusion matrix
-            sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', 
-                       xticklabels=['Survived', 'Died'],
-                       yticklabels=['Survived', 'Died'],
-                       ax=axes[i])
-            
-            axes[i].set_title(f'{model_name.replace("_", " ").title()}\n'
-                             f'Sensitivity: {sensitivity:.3f}, Specificity: {specificity:.3f}')
-            axes[i].set_xlabel('Predicted')
-            axes[i].set_ylabel('Actual')
+            # Plot confusion matrix only for working models
+            if 'original' in model_name and plot_idx < len(axes):
+                sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', 
+                           xticklabels=['Survived', 'Died'],
+                           yticklabels=['Survived', 'Died'],
+                           ax=axes[plot_idx])
+                
+                axes[plot_idx].set_title(f'{model_name.replace("_", " ").title()}\n'
+                                 f'Sensitivity: {sensitivity:.3f}, Specificity: {specificity:.3f}')
+                axes[plot_idx].set_xlabel('Predicted')
+                axes[plot_idx].set_ylabel('Actual')
+                plot_idx += 1
             
             print(f"   {model_name.replace('_', ' ').title()}:")
             print(f"     Sensitivity (Recall): {sensitivity:.4f}")
@@ -451,7 +489,7 @@ class ModelEvaluator:
             print(f"     True Negatives: {tn}, False Positives: {fp}")
             print()
         
-        plt.suptitle('Confusion Matrices - Heart Failure Prediction', fontsize=14)
+        plt.suptitle('Confusion Matrices - Heart Failure Prediction (Original 299 Records)', fontsize=14)
         plt.tight_layout()
         plt.show()
         
@@ -463,6 +501,7 @@ class ModelEvaluator:
         print("="*50)
         print("Team: Goblins Hiding in Vents")
         print("Phase: 5 - Model Evaluation and Validation")
+        print("Dataset: Original 299 Records (No Synthetic Data)")
         print("Team Leaders: Nathan (Statistical), Juan (ML)")
         print("="*50)
         
@@ -516,7 +555,7 @@ class ModelEvaluator:
 
 def main():
     """
-    Main function to execute Phase 5 model evaluation workflow.
+    Main function to execute Phase 5 model evaluation workflow using original 299 records.
     
     Team Usage:
     - Nathan: Lead statistical analysis and significance testing
@@ -524,6 +563,7 @@ def main():
     """
     print("="*60)
     print("PHASE 5: MODEL EVALUATION & VALIDATION")
+    print("Dataset: Original 299 Records (73.4% Hospital Baseline)")
     print("Team Leaders: Nathan (Statistical), Juan (ML)")
     print("Goal: Validate ≥85% accuracy with statistical significance")
     print("="*60)

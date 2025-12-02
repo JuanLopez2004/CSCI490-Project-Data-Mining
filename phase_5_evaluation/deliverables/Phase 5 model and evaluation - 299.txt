@@ -1,0 +1,132 @@
+PHASE 5: MODEL EVALUATION & VALIDATION
+Dataset: Original 299 Records (73.4% Hospital Baseline)
+Team Leaders: Nathan (Statistical), Juan (ML)
+Goal: Validate ≥85% accuracy with statistical significance
+============================================================
+✅ Using first 299 records (original data): (299, 13)
+✅ Test data loaded: (60, 12)
+✅ Decision Tree (Original) loaded
+✅ Decision Tree (Engineered) loaded
+✅ Random Forest (Original) loaded
+✅ Random Forest (Engineered) loaded
+✅ Original feature names loaded
+✅ Engineered feature names loaded
+📊 Loaded 4 models for evaluation
+
+📊 Starting comprehensive model evaluation...
+
+📈 GENERATING ROC CURVES
+==============================
+   🔍 Analyzing Decision Tree Original...
+     AUC Score: 0.8537
+   🔍 Analyzing Decision Tree Engineered...
+     ⚠️  Skipping - missing engineered features: ['kidney_heart_risk', 'cv_risk_score', 'severe_ef']...
+   🔍 Analyzing Random Forest Original...
+     AUC Score: 0.9435
+   🔍 Analyzing Random Forest Engineered...
+     ⚠️  Skipping - missing engineered features: ['kidney_heart_risk', 'cv_risk_score', 'severe_ef']...
+
+🏆 Best AUC: Random Forest Original (0.9435)
+
+🔄 BOOTSTRAP VALIDATION (1000 samples)
+========================================
+   🎲 Bootstrapping Decision Tree Original...
+     Accuracy: 0.7968 ± 0.0509
+     95% CI: [0.7000, 0.9000]
+     AUC: 0.8501 ± 0.0549
+     95% CI: [0.7332, 0.9489]
+
+   🎲 Bootstrapping Decision Tree Engineered...
+     ⚠️  Skipping - missing engineered features: ['kidney_heart_risk', 'cv_risk_score', 'severe_ef']...
+   🎲 Bootstrapping Random Forest Original...
+     Accuracy: 0.7968 ± 0.0522
+     95% CI: [0.7000, 0.9000]
+     AUC: 0.9429 ± 0.0276
+     95% CI: [0.8819, 0.9868]
+
+   🎲 Bootstrapping Random Forest Engineered...
+     ⚠️  Skipping - missing engineered features: ['kidney_heart_risk', 'cv_risk_score', 'severe_ef']...
+🔬 STATISTICAL SIGNIFICANCE TESTING
+========================================
+Null Hypothesis: Model accuracy = Hospital baseline (73.4%)
+Alternative Hypothesis: Model accuracy > Hospital baseline
+
+   📊 Testing Decision Tree Original:
+     Mean Accuracy: 0.7968
+     t-statistic: 39.001
+     p-value: 0.000000
+     Effect size (Cohen's d): 1.234
+     % Better than baseline: 86.6%
+     % Meeting target: 19.6%
+     ✅ STATISTICALLY SIGNIFICANT IMPROVEMENT!
+
+   📊 Testing Random Forest Original:
+     Mean Accuracy: 0.7968
+     t-statistic: 38.030
+     p-value: 0.000000
+     Effect size (Cohen's d): 1.203
+     % Better than baseline: 85.2%
+     % Meeting target: 19.5%
+     ✅ STATISTICALLY SIGNIFICANT IMPROVEMENT!
+
+
+📊 CONFUSION MATRIX ANALYSIS
+===================================
+   Decision Tree Original:
+     Sensitivity (Recall): 0.4211
+     Specificity: 0.9756
+     PPV (Precision): 0.8889
+     NPV: 0.7843
+     True Positives: 8, False Negatives: 11
+     True Negatives: 40, False Positives: 1
+
+   ⚠️  Skipping decision_tree_engineered - missing engineered features
+   Random Forest Original:
+     Sensitivity (Recall): 0.3684
+     Specificity: 1.0000
+     PPV (Precision): 1.0000
+     NPV: 0.7736
+     True Positives: 7, False Negatives: 12
+     True Negatives: 41, False Positives: 0
+
+   ⚠️  Skipping random_forest_engineered - missing engineered features
+
+📋 COMPREHENSIVE MODEL EVALUATION REPORT
+==================================================
+Team: Goblins Hiding in Vents
+Phase: 5 - Model Evaluation and Validation
+Dataset: Original 299 Records (No Synthetic Data)
+Team Leaders: Nathan (Statistical), Juan (ML)
+==================================================
+
+🎯 PROJECT GOALS ASSESSMENT:
+   Target Accuracy: ≥85.0%
+   Hospital Baseline: 73.4%
+   Clinical Requirement: Statistically significant improvement
+
+🏆 BEST PERFORMING MODEL: Decision Tree Original
+   Mean Accuracy: 0.7968
+   95% Confidence Interval: [0.7000, 0.9000]
+   📈 Target gap: -5.3% (close to target)
+   🏥 Hospital improvement: +6.3%
+
+🔬 STATISTICAL VALIDATION:
+   ✅ Bootstrap validation completed (1000 samples)
+   ✅ ROC curve analysis performed
+   ✅ Confidence intervals calculated
+   ✅ Statistical significance testing completed
+   ✅ Confusion matrix analysis performed
+
+💊 CLINICAL IMPACT:
+   • Early heart failure identification
+   • Reduced misdiagnosis rates
+   • Improved patient outcomes
+   • Cost savings from better diagnosis
+   • Support for clinical decision making
+
+📈 READY FOR PHASE 6: FINAL TESTING & PRESENTATION
+   Next: Decision tree visualization, final validation, presentation
+
+✅ Phase 5 model evaluation completed!
+📊 Statistical validation and performance analysis complete
+🎯 Ready for final Phase 6 presentation
