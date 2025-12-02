@@ -39,7 +39,7 @@ class HeartFailureEDA:
     - Feature relationship analysis
     """
     
-    def __init__(self, data_path: str = "Datasets/raining_data.csv"):
+    def __init__(self, data_path: str = "Datasets/training_data.csv"):
         """
         Initialize EDA class with heart failure dataset.
         
