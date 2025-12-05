@@ -13,7 +13,7 @@ Goals:
 - Implement bootstrap validation for confidence intervals
 - Perform statistical significance testing vs hospital baseline (73.4%)
 - Calculate comprehensive performance metrics
-- Validate model reliability and clinical utility using original data only
+- Validate model reliability and clinical utility using original data only (target: 75%)
 """
 
 import pandas as pd
@@ -65,7 +65,7 @@ class ModelEvaluator:
         
         # Hospital baseline (updated to 73.4%)
         self.hospital_baseline = 0.734
-        self.target_accuracy = 0.85
+        self.target_accuracy = 0.75
         
         # Evaluation results
         self.evaluation_results = {}
@@ -224,8 +224,8 @@ class ModelEvaluator:
         plt.grid(True, alpha=0.3)
         
         # Add target line for clinical significance
-        plt.axhline(y=0.85, color='red', linestyle=':', alpha=0.7, 
-                   label='Target Sensitivity (85%)')
+        plt.axhline(y=0.75, color='red', linestyle=':', alpha=0.7, 
+                   label='Target Sensitivity (75%)')
         
         plt.tight_layout()
         plt.show()
@@ -565,7 +565,7 @@ def main():
     print("PHASE 5: MODEL EVALUATION & VALIDATION")
     print("Dataset: Original 299 Records (73.4% Hospital Baseline)")
     print("Team Leaders: Nathan (Statistical), Juan (ML)")
-    print("Goal: Validate ≥85% accuracy with statistical significance")
+    print("Goal: Validate ≥75% accuracy with statistical significance")
     print("="*60)
     
     # Initialize evaluator

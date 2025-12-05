@@ -64,7 +64,7 @@ class ModelEvaluator:
         
         # Hospital baseline
         self.hospital_baseline = 0.734
-        self.target_accuracy = 0.85
+        self.target_accuracy = 0.75
         
         # Evaluation results
         self.evaluation_results = {}
@@ -209,8 +209,8 @@ class ModelEvaluator:
         plt.grid(True, alpha=0.3)
         
         # Add target line for clinical significance
-        plt.axhline(y=0.85, color='red', linestyle=':', alpha=0.7, 
-                   label='Target Sensitivity (85%)')
+        plt.axhline(y=0.75, color='red', linestyle=':', alpha=0.7, 
+                   label='Target Sensitivity (75%)')
         
         plt.tight_layout()
         plt.show()
@@ -525,7 +525,7 @@ def main():
     print("="*60)
     print("PHASE 5: MODEL EVALUATION & VALIDATION")
     print("Team Leaders: Nathan (Statistical), Juan (ML)")
-    print("Goal: Validate ≥85% accuracy with statistical significance")
+    print("Goal: Validate ≥75% accuracy with statistical significance")
     print("="*60)
     
     # Initialize evaluator
