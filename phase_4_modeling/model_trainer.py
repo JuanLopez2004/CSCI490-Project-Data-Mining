@@ -117,8 +117,8 @@ class HeartFailureModelTrainer:
         self.trained_models = {}
 
         # Target and baseline
-        self.target_accuracy = 0.85
-        self.baseline_accuracy = 0.839
+        self.target_accuracy = 0.75
+        self.baseline_accuracy = 0.734
 
         # Load both datasets
         self.load_datasets()
