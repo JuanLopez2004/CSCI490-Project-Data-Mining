@@ -2,11 +2,6 @@
 
 ## Quick Setup
 
-1. Install requirements:
-   ```bash
-   pip install pandas scikit-learn matplotlib seaborn jupyter
-   ```
-
 2. Run the project:
    ```bash
    # Week 1: Load data and find important features
