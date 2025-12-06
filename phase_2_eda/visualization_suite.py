@@ -29,7 +29,7 @@ class HeartFailureVisualizer:
     - Publication-ready static plots
     """
     
-    def __init__(self, data_path: str = "Datasets/training_data.csv"):
+    def __init__(self, data_path: str = "../Datasets/training_data.csv"):
         """Initialize visualizer with heart failure data."""
         self.data_path = data_path
         self.df = None
