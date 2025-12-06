@@ -12,6 +12,9 @@ Goals:
 - Generate 701 synthetic records maintaining statistical distributions
 - Create derived features for enhanced prediction
 - Prepare final dataset for machine learning models
+
+How to run 
+.venv\Scripts\Activate.ps1; cd phase_3_features; python feature_engineering.py
 """
 
 import pandas as pd
