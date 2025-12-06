@@ -36,7 +36,7 @@ class FeatureEngineer:
     - Feature transformation and encoding
     """
     
-    def __init__(self, data_path: str = "../data/raw/heart_failure_clinical_records.csv"):
+    def __init__(self, data_path: str = "datasets/train_data.csv"):
         """
         Initialize feature engineering pipeline.
         
