@@ -266,48 +266,6 @@ class HeartFailureVisualizer:
         
         return fig
     
-    def create_feature_importance_prep(self):
-        """Prepare visualization framework for model feature importance."""
-        if self.df is None:
-            return None
-            
-        # Calculate simple correlation-based importance
-        correlations = {}
-        target = 'DEATH_EVENT'
-        
-        for col in self.df.columns:
-            if col != target:
-                corr = abs(self.df[col].corr(self.df[target]))
-                correlations[col] = corr
-        
-        # Sort by importance
-        feature_importance = pd.DataFrame.from_dict(correlations, orient='index', columns=['importance'])
-        feature_importance = feature_importance.sort_values('importance', ascending=True)
-        
-        # Create horizontal bar plot
-        fig, ax = plt.subplots(figsize=(10, 8))
-        
-        bars = ax.barh(feature_importance.index, feature_importance['importance'], 
-                      color=plt.cm.viridis(feature_importance['importance']))
-        
-        ax.set_title('Feature Importance (Correlation with Death Event)', fontsize=14, pad=20)
-        ax.set_xlabel('Absolute Correlation with Target')
-        ax.grid(True, alpha=0.3)
-        
-        # Add value labels
-        for i, bar in enumerate(bars):
-            width = bar.get_width()
-            ax.annotate(f'{width:.3f}',
-                       xy=(width, bar.get_y() + bar.get_height() / 2),
-                       xytext=(3, 0),
-                       textcoords="offset points",
-                       ha='left', va='center')
-        
-        plt.tight_layout()
-        plt.show()
-        
-        return feature_importance
-    
     def save_visualizations(self, output_dir="../reports/phase_2_visualizations/"):
         """Save all visualizations for team sharing."""
         import os
@@ -349,7 +307,6 @@ def main():
         viz.create_overview_dashboard()
         viz.create_feature_correlation_network()
         viz.create_clinical_insights_plots()
-        viz.create_feature_importance_prep()
         
         # Save for team
         viz.save_visualizations()
